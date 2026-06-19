@@ -117,12 +117,68 @@ paginate: true
 
 ---
 
-Support for 2-byte forms of common 4-byte instructions  
-
-* Default RV-ISA subset for packaged Linux distributions (Fedora, Debian)
-* New fetch-unit which decodes possible 2 / 4 bytes instruction for every 2 bytes
+* Support for 2-byte forms of common 4-byte instructions  
+  * Default RV-ISA subset for packaged Linux distributions (Fedora, Debian)
+  * New fetch-unit which decodes possible 2 / 4 bytes instruction for every 2 bytes
 
 ---
 
+* Implemented branch predictors
+  * Get banked to match to ICache
+  * Using TAGE and RAS to improve the predictor accuracy, reduce miss aftern returning from a function
+* Using multi-branch resolution unit to evaluate multiple B-Instruction per cycle
+
+---
+
+# Execute
+
+* Support for RoCC (Rocket Custom Coprocessor) helps integration of custom processor to BOOM pipeline
+* Optimized the implementaton of SFB  
+(Short Forward Branch) by recoding difficult-to-predict branches to predicated microOps
+
+---
+
+* Short Forward Branch:
+  * Data-dependent branch over short basic block is common. This lead to high chances of mispredictions and pipeline flushes
+  * Short branch get converted to "set-flag" and  
+  "conditional-execute" micro-ops  
+  (e.g. set.ge micro-op)
+
+---
+
+![Image caption](./P5_C_Ass_MicOps.png)
+
+Branching can be omitted with the use of micro-op  
+This led to **1.7 times more** Instruction per Cycle
+
+---
+
+# Load-Store Unit, Data Cache
+
+L1 Cache drawbacks:
+
+* 1-width interface is a bottleneck of BOOM's fetch and decode pipeline
+* Non-speculative caching system
+* Blocking load refills on cache eviction  
+This leads to increased cycles in evicting the replaced line
+
+---
+
+* Dual-ported L1 Data Cache
+  * Data cache seperated into 2 banks  
+  Each bank is a 1R1W SRAM
+  * Load-store unit is upgraded accordingly  
+  to support dual-ported Data cache
+
+---
+
+* Improved L1 Peformance
+  * Cache-eviction can be done in parallel with cache refill. Refill data is written into line-fill buffer  
+  When Cache-eviction completed, line-fill buffer get flushed into cache arrays
+  * Next-line prefetcher between L1 and L2  
+  Speculatively fetches sequential cache lines after MISS into line buffers
+  * Mispeculated cache refills can be flushed out of L1. Only write to L1 cache if the request is correctly speculated
+
+---
 
 ![bg fit right:45% 85%](./P1_SonicBoom.png)
