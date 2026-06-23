@@ -6,7 +6,16 @@ theme: uncover
 paginate: true
 ---
 
-<div style="text-align: left; width: 100%">
+<style>
+section::after {
+    content: attr(data-marpit-pagination) " / " attr(data-marpit-pagination-total);
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    color: #999;
+}
+</style>
 
 ### SonicBoom: 第三次アウトオブオーダプロセッサ
 
@@ -30,7 +39,7 @@ paginate: true
 
 ---
 
-# Introduction
+# 1. Introduction
 
 * Deployment of high-performance superscalar, out-of-order (OOO) cores expanding into mobile and edge devices
 * Security, power, performance, area need to be considered when evaluating new design
@@ -60,9 +69,7 @@ paginate: true
 
 ---
 
-# BOOM history
-
----
+# 2. BOOM history
 
 * BOOM Version 1
   * Education tool for University
@@ -109,7 +116,7 @@ paginate: true
 
 ---
 
-# Instruction Fetch
+# 3. Instruction Fetch
 
 * Support for 2-byte RVC instructions
 * Implementation of TAGE branch predictor
@@ -130,7 +137,7 @@ paginate: true
 
 ---
 
-# Execute
+# 4. Execute
 
 * Support for RoCC (Rocket Custom Coprocessor) helps integration of custom processor to BOOM pipeline
 * Optimized the implementaton of SFB  
@@ -153,7 +160,7 @@ This led to **1.7 times more** Instruction per Cycle
 
 ---
 
-# Load-Store Unit, Data Cache
+# 5. Load-Store Unit, Data Cache
 
 L1 Cache drawbacks:
 
@@ -181,4 +188,78 @@ This leads to increased cycles in evicting the replaced line
 
 ---
 
-![bg fit right:45% 85%](./P1_SonicBoom.png)
+# 6. System Support
+
+* Integrates with many open-source components  
+including UARTs, GPIOs, JTAGs, shared-cache memory  
+system and various accelerators
+* A complete BOOM-based SoC  
+can be generated using Chipyard framework  
+* SonicBOOM high-speed spetaculation helps identified  
+a critical data-race bugs in RISC-V kernel
+
+---
+
+![Image caption](./P7_Chipyard_gen.png)
+
+SonicBOOM based SoC can be created with high-level specification
+
+---
+
+* As an OOO core is very complicated so  
+debugging it is a challenging task.  
+Some methods were used to debug it
+  * Unit-testing: TraceGen and memtrace were used to test load-store unit and data-cache
+  * Dromajo co-simulation tool + FireSim: enable co-simulation at over 1 MHz - magnitudes faster than a software-only co-simulation system
+
+---
+
+# 7. Evaluation
+
+Used test suite  
+
+* CoreMark: CPU basic tasks, including string operations, matrix calculation, hash function, state machines. CPU's speed test  
+* SPECint 2006 CPU: Big integer calculation power. Real-application systematic stress test.
+  
+---
+
+* SPECint test
+  * AWS Graviton: Datacenter ARM based 3-wide core
+  * Skylake: x86, 6-wide core
+* Synthesized SonicBOOM processor is compatitive with Graviton. Can match Skylake on some benchmarks  
+  * 625.x264: video compression  
+  (video stream to H.264/MPEG-4 AVC format)
+  * 631.deepsjeng: artificail intelligence benchmark  
+  (tree search & pattern recoginition)
+* **ISA differences** between 3 systems affected IPC
+
+---
+
+![Image caption](./P8_SpecInt_Alt.png)
+
+SonicBOOM is comparable to Graviton (ARM-based)  
+and matches Skylake (x86-based) on some benchmarks
+
+---
+
+* CoreMark test (Not a good evaluation for out-of-order performance)
+
+![Image caption](./P9_CoreMark.png)
+
+SonicBOOM is faster than many prior open-source core
+
+---
+
+# 8. What's next
+
+1. Out-of-order implementation of Vector ISA in BOOM
+2. L1 miss penalties reduction
+    * Implementation of outer-memory prefetcher (instructions & data)
+
+---
+
+# 9. Conclusion
+
+* Many performance bottlenecks from BOOMv2 were resolved
+* New microarchitectural optimizations were made
+* Implemented core is performance-compatitive to datacenters-class cores
